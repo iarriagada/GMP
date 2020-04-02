@@ -1,0 +1,34 @@
+/*! \page gmp_internal_documentation GMP Developers Documentation
+ *
+ * \section bundles_sec Bundles
+ *
+ * The \b GMP Server is comprised of the following bundles:
+ *
+ * - \subpage cas
+ * - \subpage epics-service
+ * - \subpage gmp-epics-status-service
+ * - \subpage gmp-pcs-updater
+ * - \subpage gmp-tcs-context
+ * - \subpage gmp-epics-simulator
+ * - \subpage gmp-epics-access
+ * - \subpage gmp-services
+ * - \subpage gmp_heartbeat
+ * - \subpage gmp_health
+ * - \subpage heartbeat_distributor_service
+ * - \subpage epics_heartbeat
+ * - \subpage jms_activemq_broker
+ * - \subpage jms_activemq_provider
+ * - \subpage gmp-commands
+ * - \subpage gmp-commands-jms-bridge
+ * - \subpage gmp-commands-jms-client
+ * - \subpage comm_records
+ * - \subpage gmp_epics_top
+ * - \subpage giapi-status-dispatcher
+ * - \subpage giapi-status-service
+ * - \subpage gmp-epics-to-status
+ *
+ * \section perf_tests_sec Performance and Testing
+ * \li GMP EPICS Status Service and CAS performance tests at \subpage performance.
+ * \li \subpage validation
+ *
+ */

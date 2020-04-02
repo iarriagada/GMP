@@ -1,0 +1,715 @@
+/*! \page validation Integration Tests
+ *
+ * \section validation_intro_sec Introduction
+ *
+ * This is work in progress as we continue building the OCS infrastructure connection to the GMP.
+ *
+ * This page has information on the integration tests of the GMP. These tests are designed to check that
+ * everything is working correctly from end to end from the different services offered by the GMP.
+ *
+ \section it_prereqs Prerequisites
+
+ \li Compile all the C++ glue example code located at src/examples.
+ \li Update the gmp.properties file to the machine where the GMP server is running
+
+ \section integration_tests Integration Tests
+
+ \subsection epics_subscription_test Epics Subscription Channels Integration Tests
+
+     The epicssubscription application will monitor two channels: \c gpi:ws:wsFilter.VALL and \c gpi:ws:cpWf.
+     Whenever an update is received, the values will be displayed in the console.
+
+     Before running the application, make sure the EPCS Simulator is running and
+     the simulated_epics_channels.xml file contains these two channels. This file
+     should have something like:
+\verbatim
+    <channels>
+       <channel>
+           <name>gpi:ws:wsFilter.VALL</name>
+           <type>double</type>
+           <size>10</size>
+           <updateRate>5</updateRate>
+       </channel>
+
+        <channel>
+            <name>gpi:ws:cpWf</name>
+            <type>byte</type>
+            <size>20</size>
+            <updateRate>7</updateRate>
+        </channel>
+    </channels>
+\endverbatim
+
+Of course, you can change these values and update the test application accordingly.
+
+     Once this is checked, run the application:
+
+     <tt>$ ./runExample.sh epicssubscription</tt>
+
+     and you should get something similar to:
+
+\attention In Release 13.0 the Epics Simulator has been disabled in preparation for integration. You may not see updates to the
+channels below
+\verbatim
+    Starting Epics Subscription Demo
+    2011-02-25 11:00:47,792 [0x2ab4c9a45260] INFO  giapi.GeminiUtilImpl - Subscribe epics status gpi:ws:wsFilter.VALL
+    2011-02-25 11:00:47,805 [0x2ab4c9a45260] INFO  giapi.GeminiUtilImpl - Subscribe epics status gpi:ws:cpWf
+    Channel Changed gpi:ws:wsFilter.VALL
+    Value [0] = 0.697006
+    Value [1] = 0.983262
+    Value [2] = 0.759258
+    Value [3] = 0.5015
+    Value [4] = 0.742861
+    Value [5] = 0.456031
+    Value [6] = 0.482406
+    Value [7] = 0.865949
+    Value [8] = 0.59004
+    Value [9] = 0.87209
+    Channel Changed gpi:ws:cpWf
+    Value: {222 18 139 96 53 39 239 9 163 221 117 129 193 153 71 159 50 31 218 9 }
+    Channel Changed gpi:ws:wsFilter.VALL
+    Value [0] = 0.144421
+    Value [1] = 0.516714
+    Value [2] = 0.787672
+    Value [3] = 0.67028
+    Value [4] = 0.954519
+    Value [5] = 0.304772
+    Value [6] = 0.116668
+    Value [7] = 0.200185
+    Value [8] = 0.204309
+    Value [9] = 0.141435
+\endverbatim
+
+     Make sure you see both channels updating. To exit the application use CTRL-C
+
+
+ \subsection file_events_test File Events Service Integration Tests
+
+     First, use the giapi-tester application to start listening for File Events
+     (see documentation for giapi-tester here):
+
+     <tt>$ ./giapi-tester.sh -fileEvents</tt>
+
+     Now run the fileevents application:
+
+      <tt>$./runExample.sh fileevents</tt>
+
+      You'll see a bunch of messages in the console like
+    \verbatim
+    Starting File Event Example
+    Ancillary File Event: 01myfile1.txt, S2009020201-1
+    2011-10-14 11:41:10,316 [0x7fff70cddcc0] WARN  giapi.JmsProducer - The datalabel cannot be empty for file events 
+    Expected error - Dataset label not specified. No message should have been sent 
+    2011-10-14 11:41:10,316 [0x7fff70cddcc0] WARN  giapi.JmsProducer - The filename cannot be empty for file events 
+    Expected error - Filename not specified. No message should have been sent 
+    2011-10-14 11:41:10,316 [0x7fff70cddcc0] WARN  giapi.JmsProducer - The filename cannot be empty for file events 
+    Expected error - No filename nor dataset specified. No message should have been sent 
+    Intermediate File Event: 02myfile1.txt, S2009020201-1, null
+    Intermediate File Event: 03myfile1.txt, S2009020201-1, hint
+    2011-10-14 11:41:10,317 [0x7fff70cddcc0] WARN  giapi.JmsProducer - The datalabel cannot be empty for file events 
+    Expected error - Dataset label not specified. No message should have been sent 
+    2011-10-14 11:41:10,317 [0x7fff70cddcc0] WARN  giapi.JmsProducer - The filename cannot be empty for file events 
+    Expected error - Filename not specified. No message should have been sent 
+    2011-10-14 11:41:10,317 [0x7fff70cddcc0] WARN  giapi.JmsProducer - The filename cannot be empty for file events 
+    Expected error - No filename nor dataset specified. No message should have been sent      
+    \endverbatim
+
+      In the giapi-tester, you should see:
+    \verbatim
+    Ancillary File Event    [S2009020201-1/01myfile1.txt]
+    Intermediate File Event [S2009020201-1/02myfile1.txt/null]
+    Intermediate File Event [S2009020201-1/03myfile2.txt/hint]    
+    \endverbatim
+
+
+ \subsection obs_events_test Observation Events Integration Tests
+
+        First, use the giapi-tester application to start listening for Observation Events
+
+          <tt>$ ./giapi-tester.sh -obsEvents</tt>
+
+        You will get an output similar to:
+    \verbatim
+    Feb 25, 2011 11:07:16 AM edu.gemini.jms.activemq.provider.ActiveMQJmsProvider __validated
+    INFO: ActiveMQ JMS Provider setup with url: tcp://localhost:61616
+    Feb 25, 2011 11:07:17 AM edu.gemini.jms.api.BaseJmsArtifact startJms
+    INFO: Started JMS Artifact [Observation Event Test Client]
+    \endverbatim
+
+
+          Now run the obsevent application:
+
+           <tt>$./runExample.sh obsevent</tt>
+
+           You'll see a bunch of messages in the console, like:
+
+    \verbatim
+    Starting Observation Event Example
+    2011-10-14 10:07:38,778 [0x2acb102ca150] INFO  giapi.JmsProducer - Observation Event: OBS_PREP datalabel: S2009020201-1
+    2011-10-14 10:07:38,802 [0x2acb102ca150] INFO  giapi.JmsProducer - Observation Event: OBS_START_ACQ datalabel: S2009020201-1
+    2011-10-14 10:07:38,804 [0x2acb102ca150] INFO  giapi.JmsProducer - Observation Event: OBS_END_ACQ datalabel: S2009020201-1
+    2011-10-14 10:07:38,805 [0x2acb102ca150] INFO  giapi.JmsProducer - Observation Event: OBS_START_READOUT datalabel: S2009020201-1
+    2011-10-14 10:07:38,806 [0x2acb102ca150] INFO  giapi.JmsProducer - Observation Event: OBS_END_READOUT datalabel: S2009020201-1
+    2011-10-14 10:07:38,807 [0x2acb102ca150] INFO  giapi.JmsProducer - Observation Event: OBS_START_DSET_WRITE datalabel: S2009020201-1
+    2011-10-14 10:07:38,808 [0x2acb102ca150] INFO  giapi.JmsProducer - Observation Event: OBS_END_DSET_WRITE datalabel: S2009020201-1
+    2011-10-14 10:07:38,809 [0x2acb102ca150] WARN  giapi.JmsProducer - The datalabel cannot be empty for observation event OBS_END_DSET_WRITE
+    This is an expected error, the dataset label was empty. No message was sent to GMP
+    2011-10-14 10:07:38,809 [0x2acb102ca150] WARN  giapi.JmsProducer - The datalabel cannot be empty for observation event OBS_END_DSET_WRITE
+    This is an expected error, the dataset label was empty. No message was sent to GMP
+    \endverbatim
+
+           In the giapi-tester, you should see:
+    \verbatim
+    [S2009020201-1/OBS_PREP]
+    [S2009020201-1/OBS_START_ACQ]
+    [S2009020201-1/OBS_END_ACQ]
+    [S2009020201-1/OBS_START_READOUT]
+    [S2009020201-1/OBS_END_READOUT]
+    [S2009020201-1/OBS_START_DSET_WRITE]
+    [S2009020201-1/OBS_END_DSET_WRITE]
+    \endverbatim
+
+           Make sure the order is exactly the one shown above.
+
+ \subsection logging_test Logging Service Integration Tests
+
+        Look at the GMP logs first:
+
+        <tt>$ tail -f gmp.log</tt>
+
+
+        Now, run the logging application:
+
+        <tt>$ ./runExample.sh logging</tt>
+
+        and you should see in the gmp.logs the following ( the format may vary as it is configurable in the GMP):
+    \verbatim
+    2011-02-25 11:11:50,327 INFO  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (1)
+    2011-02-25 11:11:50,580 INFO  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (2)
+    2011-02-25 11:11:50,834 INFO  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (3)
+    2011-02-25 11:11:51,087 INFO  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (4)
+    2011-02-25 11:11:51,340 INFO  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (5)
+    2011-02-25 11:11:51,591 INFO  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (6)
+    2011-02-25 11:11:51,844 INFO  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (7)
+    2011-02-25 11:11:52,098 INFO  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (8)
+    2011-02-25 11:11:52,350 INFO  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (9)
+    2011-02-25 11:11:52,603 INFO  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (10)
+    2011-02-25 11:11:52,857 WARN  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (1)
+    2011-02-25 11:11:53,111 WARN  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (2)
+    2011-02-25 11:11:53,364 WARN  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (3)
+    2011-02-25 11:11:53,617 WARN  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (4)
+    2011-02-25 11:11:53,869 WARN  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (5)
+    2011-02-25 11:11:54,121 WARN  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (6)
+    2011-02-25 11:11:54,375 WARN  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (7)
+    2011-02-25 11:11:54,629 WARN  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (8)
+    2011-02-25 11:11:54,880 WARN  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (9)
+    2011-02-25 11:11:55,133 WARN  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (10)
+    2011-02-25 11:11:55,386 ERROR [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (1)
+    2011-02-25 11:11:55,640 ERROR [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (2)
+    2011-02-25 11:11:55,893 ERROR  [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (4)
+    2011-02-25 11:11:56,400 ERROR [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (5)
+    2011-02-25 11:11:56,653 ERROR [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (6)
+    2011-02-25 11:11:56,906 ERROR[ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (3)
+    2011-02-25 11:11:56,147 ERROR [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (7)
+    2011-02-25 11:11:57,158 ERROR [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (8)
+    2011-02-25 11:11:57,412 ERROR [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (9)
+    2011-02-25 11:11:57,665 ERROR [ActiveMQ Session Task] ni.aspen.gmp.logging.DefaultLogProcessor -  Log Message (10)
+    \endverbatim
+
+
+\subsection pcs_updater_test  PCS Updater Service Integration Tests
+
+        First, make sure the GMP PCS Updater Service is running in the GMP (look at the Active bundles).
+
+        Then, ensure the GMP PCS Updater is configured in simulation. Check
+
+        <tt>$ cat  $GMP_HOME/conf/services/edu.gemini.aspen.gmp.pcs.model.PcsUpdaterComponent-default.cfg</tt>
+
+        It should look like:
+    \verbatim
+    # Indicates whether the PCS Updater is in simulation mode
+    simulation=true
+    # What epics channel is used by PCS Updater
+    epicsChannel=tst:array.VALJ
+    \endverbatim
+        \attention If simulation is set to false, change it and restart the GMP. This is VERY important, as otherwise
+        we might send values to the real PCS!!!!!
+
+
+        Now, start looking at the GMP logs:
+
+        <tt>$ tail -f gmp.log</tt>
+
+        And then run the pcsupdater application:
+
+        <tt>$ ./runExample.sh pcsupdater</tt>
+
+             You should see in the console:
+    \verbatim
+    Starting PCS Zernikes Example
+    2011-02-25 11:18:16,065 [0x2aeb685b7260] INFO  giapi.GeminiUtilImpl - postPCSUpdate: 1.00 2.00 3.00 4.00 5.00 6.00
+    \endverbatim
+    And in the GMP logs:
+    \verbatim
+    2011-02-25 11:18:16,076 INFO  [ActiveMQ Session Task] pen.gmp.pcs.model.updaters.LogPcsUpdater -  PCS Update received PcsUpdate{zernikes=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]}
+    \endverbatim
+        And confirm that the zernikes arrive correctly.
+
+
+\subsection seq_commands_test  Sequence Commands Integration Tests
+
+        First, start the seq-command application:
+
+        <tt>$ ./runExample.sh seq-command</tt>
+
+        You will see:
+
+\verbatim
+    2011-02-25 11:21:21,007 [0x2ad394370260] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.PARK
+\endverbatim
+
+
+        This will start listening for the PARK Command with the PRESET/START activity and will invoke a handler upon reception of
+         the command. The handler will alternate simulating  an immediate response and an action that takes about 10 seconds to complete.
+
+        To confirm this is working, use the giapi-tester to send this command to the application.
+
+        <tt>$ ./giapi-tester.sh -sc PARK -activity PRESET_START</tt>
+\verbatim
+    Response Received: [STARTED]
+    Completion Information: [[response=[COMPLETED]][command=PARK][activity=PRESET_START][{config={}}]]
+\endverbatim
+
+        The same results should be obtained if we send PRESET or START as the activity, though in
+        a real-life application, the PRESET should return right away.
+
+\subsection apply_commands_test  Apply Command Integration Tests
+
+        First, start the apply-command application:
+
+        <tt>$ ./runExample.sh apply-command</tt>
+
+        You will see:
+
+\verbatim
+    2011-03-24 16:22:02,809 [0x7fff70808ca0] INFO  giapi.LogCommandUtil - Registering handler to apply epicsTop gpi
+    2011-03-24 16:22:02,809 [0x7fff70808ca0] DEBUG giapi::SequenceCommandConsumer - Starting consumer for topic GMP.SC.APPLY.gpi/GMP_ACTIVITY_PROP IN ('PRESET','START','PRESET/START')
+\endverbatim
+
+
+        This will start listening for the APPLY Command with the PRESET/START activity and will accept configurations with
+         gpi epicsTop. The handler will accept the apply send a STARTED responses and COMPLETE after some 10 seconds.
+
+        To confirm this is working, use the giapi-tester to send this command to the application.
+
+        <tt>$ ./giapi-tester.sh -sc APPLY -activity START -config "gpi:cc.V=1"</tt>
+\verbatim
+    Response Received: [COMPLETED]
+    Completion Information: [[response=[COMPLETED]][command=APPLY][activity=START][{config={gpi:cc.V=1}}]]
+\endverbatim
+
+        If you run it again with a non actionable configuration, you should see:
+        <tt>$ ./giapi-tester.sh -sc APPLY -activity START -config "unknown:cc.V=1"</tt>
+\verbatim
+    Response Received: [NOANSWER]
+\endverbatim
+
+        The same results will be obtained we send PRESET as the activity, though in
+        a real-life application, the PRESET should return right away.
+
+\subsection status_test  Status Service Integration Tests
+
+        First start the giapi-tester to monitor all the status items:
+
+        <tt>$ ./giapi-tester.sh -monitor ">"</tt>
+
+        You'll see a bunch of setup logging information. Check there are no errors.
+
+        Every second you will also see an update of the gmp heartbeat as
+
+        <tt>$ Status value: StatusItem{name='gpisim:gmp:heartbeat', value=2373, timestamp=Mon Mar 05 12:31:03 CLST 2012}</tt>
+
+        Now start the status application. This application will generate status information for
+        two items, gpi:status1 and gpi:status2. The fist one will go from 0 to 999 and the other will
+        go from 1000 to 1:
+
+        <tt>$ ./runExample.sh status</tt>
+
+        You will see in the console:
+\verbatim
+    Starting Status Example
+    Elapsed Time: 1.176 [sec]
+    Throughput  : 1700.68 [msg/sec]
+\endverbatim
+
+        and in the giapi-tester you will see the received values:
+\verbatim
+    ....
+    Status value: StatusItem{name='gpi:status1', value=994}
+    Status value: StatusItem{name='gpi:status2', value=6}
+    Status value: StatusItem{name='gpi:status1', value=995}
+    Status value: StatusItem{name='gpi:status2', value=5}
+    Status value: StatusItem{name='gpi:status1', value=996}
+    Status value: StatusItem{name='gpi:status2', value=4}
+    Status value: StatusItem{name='gpi:status1', value=997}
+    Status value: StatusItem{name='gpi:status2', value=3}
+    Status value: StatusItem{name='gpi:status1', value=998}
+    Status value: StatusItem{name='gpi:status2', value=2}
+    Status value: StatusItem{name='gpi:status1', value=999}
+    Status value: StatusItem{name='gpi:status2', value=1}
+\endverbatim
+
+\subsection services_test Gemini Services Integration Tests
+
+        Check the content of the services configuration %file:
+
+        <tt>$ cat $GMP_HOME/conf/services/edu.gemini.aspen.gmp.services.properties.SimplePropertyHolder-default.cfg</tt>
+\verbatim
+#    Contains the description of the properties that can be obtained through the
+#    GIAPI. Each property has a string value associated.
+
+GMP_HOST_NAME = localhost
+DHS_ANCILLARY_DATA_PATH = /tmp
+DHS_SCIENCE_DATA_PATH = /tmp
+DHS_PERMANENT_SCIENCE_DATA_PATH = /tmp/perm
+DHS_INTERMEDIATE_DATA_PATH = /tmp
+DEFAULT =
+\endverbatim
+
+       The services application will try to get the GMP_HOST NAME
+
+       Now start the services application:
+
+       <tt>$ ./runExample.sh services</tt>
+\verbatim
+Starting Services Util Example
+2012-03-05 12:40:46,362 [0x2b37220d9150] INFO  giapi.ServicesUtilImpl - Property requested for key: GMP_HOST_NAME
+Hostname: localhost
+2012-03-05 12:40:46,379 [0x2b37220d9150] INFO  giapi.ServicesUtilImpl - Property requested for key: DHS_ANCILLARY_DATA_PATH
+Ancilliary Data Path: /tmp
+2012-03-05 12:40:46,395 [0x2b37220d9150] INFO  giapi.ServicesUtilImpl - Property requested for key: DHS_SCIENCE_DATA_PATH
+Science Path: /tmp
+2012-03-05 12:40:46,547 [0x2b37220d9150] INFO  giapi.ServicesUtilImpl - Property requested for key: DHS_PERMANENT_SCIENCE_DATA_PATH
+Permanent Science Path: /tmp/perm
+2012-03-05 12:40:46,586 [0x2b37220d9150] INFO  giapi.ServicesUtilImpl - Property requested for key: DHS_INTERMEDIATE_DATA_PATH
+Intermediate Data Path: /tmp
+2012-03-05 12:40:46,600 [0x2b37220d9150] INFO  giapi.ServicesUtilImpl - Property requested for key: DEFAULT
+Default:
+\endverbatim
+
+       Confirm that the value obtained matches the one in the configuration file.
+
+       NOTE: We will update this test application to read all the properties.
+
+\subsection tcs_context_test TCS Context Service Integration Tests
+
+    <b>Test with internal simulation:</b>
+
+    First, verify the GMP TCS context service is running in the GMP and
+    it is configured in simulation:
+
+     <tt>$ cat $GMP_HOME/conf/services/edu.gemini.aspen.gmp.tcs.model.TcsContextComponent-default.cfg</tt>
+\verbatim
+    # Indicates whether the TCS Context is in simulation mode
+    simulation=true
+    # EPICS used to obtain the TCS Context information
+    tcsChannel=tc1:sad:astCtx
+    # Configuration file pointing to the simulation data
+    simulationData=${conf.base}/tcsCtx.data
+\endverbatim
+     If it's not configured in simulation, change it and restart the GMP. Note that
+     in this mode, the second parameter (tcsChannel) is not used.
+
+     Now, start the tcscontext application in the GIAPI C++ Glue code:
+
+     <tt>$ ./runExample.sh tcscontext</tt>
+
+     Your output should be similar to the one shown below:
+\verbatim
+    Starting TCS Context Example
+    TCS Context:
+    =================
+    Raw Time        :     1298645243
+    Mount Flexure X :      -0.122335
+    Mount Flexure Y :       0.970269
+    Mount Flexure Z :       0.208836
+    =================
+    Telescope Parameters
+    Telescope focal length (mm)                   :         128000
+    Rotator mechanical angle (rads)               :       -1.02922
+    Azimuth axis tilt NS (rads)                   :   -0.000106659
+    Azimuth axis tilt EW (rads)                   :    0.000125809
+    Az/El nonperpendicularity (rads)              :   -2.62714e-05
+    Net left-right(horizontal) collimation (rads) :    0.000144038
+    Net up-down(vertical) collimation (rads)      :              0
+    Pointing origin x-component (mm)              :              0
+    Pointing origin y-component (mm)              :              0
+    =================
+    Apparent to Observed Parameters
+      -0.527798      -0.503632       0.863918      1.342e-06           2722
+         283.16            730            0.4            0.5         0.0065
+    0.000204089   -2.32164e-07              0        4.95851    -6.6214e-08
+    =================
+    M2 tip/tilt (3 chop states)
+    2.99898e-12    2.11159e-16
+    2.99895e-12    1.54401e-16
+    1.62883e-09    2.36088e-05
+    =================
+    Point Origins
+    Mount point origin in X            :     -0.0771683
+    Mount point origin in Y            :       -4.48684
+    Source chop A pointing origin in X :     -0.0771683
+    Source chop A pointing origin in Y :       -4.48684
+    Source chop B pointing origin in X :     -0.0771683
+    Source chop B pointing origin in Y :       -4.48684
+    Source chop C pointing origin in X :     -0.0771683
+    Source chop C pointing origin in Y :       -4.48684
+    =================
+    Optical Distortions
+       0       1       0       0       0       1
+\endverbatim
+
+   <b>Test with access to the TCS via EPICS:</b>
+
+   First, configure the TCS Context Service to not use simulation:
+
+   <tt>$ cat $GMP_HOME/conf/services/edu.gemini.aspen.gmp.tcs.model.TcsContextComponent-default.cfg</tt>
+   \verbatim
+       # Indicates whether the TCS Context is in simulation mode
+       simulation=false
+       # EPICS channel used to obtain the TCS Context information
+       tcsChannel=tcs:sad:astCtx
+       # Configuration file pointing to the simulation data
+       simulationData=${conf.base}/tcsCtx.data
+   \endverbatim
+
+   Now, you have to configure the Epics Service to be able to find the
+   TCS. For this, edit the file
+
+   <tt>$GMP_HOME/conf/services/edu.gemini.epics.EpicsService-default.cfg</tt>
+   \verbatim
+       # Address of the EPICS database to connect to
+       addressList=172.17.X.X
+   \endverbatim
+
+   Adjust the IP to the one used by the TCS. For full details about the
+   Epics Service, see the \ref epics-service documentation.
+
+   Now start the GMP server as indicated in the \ref gmp_user_manual.
+
+   And then start the tcscontext application in the GIAPI C++ Glue code:
+
+     <tt>$ ./runExample.sh tcscontext</tt>
+
+     Your output should be similar to the one shown below:
+\verbatim
+    Starting TCS Context Example
+    TCS Context:
+    =================
+    Raw Time        :     1298645243
+    Mount Flexure X :      -0.122335
+    Mount Flexure Y :       0.970269
+    Mount Flexure Z :       0.208836
+    =================
+    Telescope Parameters
+    Telescope focal length (mm)                   :         128000
+    Rotator mechanical angle (rads)               :       -1.02922
+    Azimuth axis tilt NS (rads)                   :   -0.000106659
+    Azimuth axis tilt EW (rads)                   :    0.000125809
+    Az/El nonperpendicularity (rads)              :   -2.62714e-05
+    Net left-right(horizontal) collimation (rads) :    0.000144038
+    Net up-down(vertical) collimation (rads)      :              0
+    Pointing origin x-component (mm)              :              0
+    Pointing origin y-component (mm)              :              0
+    =================
+    Apparent to Observed Parameters
+      -0.527798      -0.503632       0.863918      1.342e-06           2722
+         283.16            730            0.4            0.5         0.0065
+    0.000204089   -2.32164e-07              0        4.95851    -6.6214e-08
+    =================
+    M2 tip/tilt (3 chop states)
+    2.99898e-12    2.11159e-16
+    2.99895e-12    1.54401e-16
+    1.62883e-09    2.36088e-05
+    =================
+    Point Origins
+    Mount point origin in X            :     -0.0771683
+    Mount point origin in Y            :       -4.48684
+    Source chop A pointing origin in X :     -0.0771683
+    Source chop A pointing origin in Y :       -4.48684
+    Source chop B pointing origin in X :     -0.0771683
+    Source chop B pointing origin in Y :       -4.48684
+    Source chop C pointing origin in X :     -0.0771683
+    Source chop C pointing origin in Y :       -4.48684
+    =================
+    Optical Distortions
+       0       1       0       0       0       1
+\endverbatim
+
+If you don't get an output like this, either you don't have access to the TCS
+or your GMP configuration is incorrect.
+
+\subsection validation_testing_sec EPICS Status Service Integration Tests
+\li Start the GMP as indicated in the \ref gmp_user_manual.
+\li The EPICS status items that are configured in the GMP are defined in the \ref giapi-epics-status-mapping.xml file. See the
+\ref gmp-epics-status-service bundle documentation for more details.
+
+\attention The first part of the name in all the epics channels is called the top. In this document is called gmp and so the channels aru e.g. gmp:state. You may change that by editing the \ref edu.gemini.aspen.gmp.top.TopImpl-default.cfg file
+
+To check that everything is running correctly, you can run <tt>$ caget -a gmp:state</tt> and see if it can read a
+value. Remember to set the \c EPICS_CA_ADDR_LIST environment variable to point to the IP where the GMP is running. You should see
+something like this:
+\verbatim
+    gmp:state                      2011-10-13 12:46:01.835000 0
+\endverbatim
+The value returned should match the value specified in the \ref giapi-epics-status-mapping.xml file.
+
+\li Run <tt>$ camonitor gmp:status1 gmp:status2</tt> to connect clients to some EPICS channels.
+Remember to set the \c EPICS_CA_ADDR_LIST environment variable to point to the IP where the GMP is running.
+\li Run <tt>sh runExample.sh status</tt> (available in src/examples/ in the C++ glue code). Remember to either have a \c gmp.properties file configured in the
+current directory, or to set the environment variable \c GMP_CONFIGURATION to point to the correct file. The output from the
+example code should be something like:
+\verbatim
+    Starting Status Example
+    Elapsed Time: 1.561 [sec]
+    Throughput  : 1281.23 [msg/sec]
+\endverbatim
+\li Check that <tt>camonitor</tt> reflects the changes in the values of the EPICS channels:
+\verbatim
+    ...
+    gmp:status1                    2011-03-01 11:28:02.316000 995
+    gmp:status2                    2011-03-01 11:28:02.317000 5
+    gmp:status1                    2011-03-01 11:28:02.317000 996
+    gmp:status2                    2011-03-01 11:28:02.317000 4
+    gmp:status1                    2011-03-01 11:28:02.317000 997
+    gmp:status2                    2011-03-01 11:28:02.317000 3
+    gmp:status1                    2011-03-01 11:28:02.317000 998
+    gmp:status2                    2011-03-01 11:28:02.317000 2
+    gmp:status1                    2011-03-01 11:28:02.318000 999
+    gmp:status2                    2011-03-01 11:28:02.318000 1
+\endverbatim
+\li Now run <tt>$ camonitor gmp:status1 gmp:alarm1 gmp:alarm1.OMSS gmp:health1</tt>.
+\li Run <tt>giapi-tester.sh -set gmp:status1 -value 100 -type INTEGER</tt>.
+\li Run <tt>giapi-tester.sh -set gmp:health1 -value WARNING -type HEALTH</tt>.
+\li Run <tt>giapi-tester.sh -set gmp:alarm1 -value 100 -type ALARM_INTEGER -severity ALARM_WARNING -cause ALARM_CAUSE_HI -message "Error message"</tt>.
+\li Check that the camonitor reflects the changes in the values of the EPICS channel:
+\verbatim
+    gmp:status1                    2011-03-01 11:36:09.052000 999
+    gmp:alarm1                     2011-03-01 11:35:52.853000 2
+    gmp:health1                    2011-03-01 11:33:27.367000 BAD
+    gmp:alarm1.OMSS                2011-03-01 11:35:52.853000
+    gmp:status1                    2011-03-01 11:36:23.308000 100
+    gmp:health1                    2011-03-01 11:36:31.349000 WARNING
+    gmp:alarm1                     2011-03-01 11:36:37.641000 100
+    gmp:alarm1                     2011-03-01 11:36:37.641000 100 HIGH MINOR
+    gmp:alarm1.OMSS                2011-03-01 11:36:37.641000 Error message
+\endverbatim
+\li As you can see, the error message for alarm goes to a separate channel, with the same name as the main channel, followed by ".OMSS".
+The valid values for health, severity and alarm cause, can be found in the giapi_tester help.
+
+\subsection comm_records_testing_sec GMP Commands Records Integration Tests
+\li Start the GMP as indicated in the \ref gmp_user_manual.
+\li For this test you will also need tcl code in http://source.gemini.edu/software/giapi/giapi-eng/ocs-test-scripts/trunk.
+\li Check the code to a directory we'll call ocs-test-scripts/, in a Linux machine with ocswish installed.
+\li Start the sequence command example in <tt> giapi-glue-cc/src/examples/ </tt> with: <tt>$ sh runExample.sh any-command</tt>.
+\li In ocs-test-scripts/, run <tt>$ ./commandTest -config test.ca -cs observe -params "DATA_LABEL test_data_label"<tt>. Remember to set the
+\c EPICS_CA_ADDR_LIST environment variable to point to the IP where the GMP is running.
+\li The command should take about 10 seconds before exiting without any exceptions (a message like "epicsThreadOnceOsd
+epicsMutexLock failed." is normal).
+\li In the C++ example code that's running you should see something like:
+\verbatim
+    $ sh runExample.sh any-command
+    Starting Accepting Any Sequence Commands Example
+    2011-04-04 13:59:07,636 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.TEST
+    2011-04-04 13:59:07,643 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.INIT
+    2011-04-04 13:59:07,649 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.DATUM
+    2011-04-04 13:59:07,656 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.PARK
+    2011-04-04 13:59:07,662 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.VERIFY
+    2011-04-04 13:59:07,673 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.END_VERIFY
+    2011-04-04 13:59:07,680 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.GUIDE
+    2011-04-04 13:59:07,685 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.END_GUIDE
+    2011-04-04 13:59:07,690 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.OBSERVE
+    2011-04-04 13:59:07,700 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.END_OBSERVE
+    2011-04-04 13:59:07,705 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.PAUSE
+    2011-04-04 13:59:07,714 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.CONTINUE
+    2011-04-04 13:59:07,722 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.STOP
+    2011-04-04 13:59:07,727 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.ABORT
+    2011-04-04 13:59:07,733 [0x2b0f1ba4b3b0] INFO  giapi.LogCommandUtil - Registering handler to apply prefix gpi
+    Configuration
+    {gpi:observe.DATA_LABEL : test_data_label}
+    Response to caller 0
+    Configuration
+    {gpi:observe.DATA_LABEL : test_data_label}
+    Starting worker thread for 6
+    Worker Thread started!
+    Messages processed = 0
+    Messages processed = 1
+    Messages processed = 2
+    Messages processed = 3
+    Messages processed = 4
+    Messages processed = 5
+    Messages processed = 6
+    Messages processed = 7
+    Messages processed = 8
+    Messages processed = 9
+    2011-04-04 13:59:16,455 [0x4e77c940] INFO  giapi.LogCommandUtil - Posting completion info for action id  6
+\endverbatim
+
+\subsection gpi_test GPI Commands Test
+
+\subsection comm_memory_leaks_testing_sec GMP Commands Memory Leaks Testing
+Testing for memory leaks are possible by using the stress.sh script and the checking the GMP using visualvm or jconsole
+\li Start the GMP as indicated in the \ref gmp_user_manual.
+\li For this test you will also need tcl code in http://source.gemini.edu/software/giapi/giapi-eng/ocs-test-scripts/trunk.
+\li Check the code to a directory we'll call ocs-test-scripts/, in a Linux machine with ocswish installed.
+\li Start the sequence command example in <tt> giapi-glue-cc/src/examples/ </tt> with: <tt>$ sh runExample.sh any-command</tt>.
+\li Start jconsole (Installed as part of the JDK) and make it connect to the org.apache.felix.main.Main process
+\li In ocs-test-scripts/, run <tt>$ ./stress.sh num<tt> where num is a large number. Remember to set the
+\c EPICS_CA_ADDR_LIST environment variable to point to the IP where the GMP is running.
+\li The script should run for quite a while sending commands in sequence to the GMP and then to the simulated instrument
+\li The output of the script would look like:
+\verbatim
+Iteration 1
+Sending PARK
+Sending OBSERVE
+Sending APPLY
+Iteration 2
+Sending PARK
+Sending OBSERVE
+Sending APPLY
+Iteration 3
+Sending PARK
+\endverbatim
+\li On jconsole the memory consumption can be checked on the Memory tab as shown below:
+\image html jconsole_memory_tab.png
+\attention A small memory leak was found as explained in \ref known_issues_and_bugs 
+
+\subsection gds_testing_sec Integrated GDS + GMP Commands Records Tests
+\li Start the GMP as indicated in the \ref gmp_user_manual.
+\li For this test you will also need tcl code in http://source.gemini.edu/software/giapi/giapi-eng/ocs-test-scripts/trunk.
+\li Check the code to a directory we'll call ocs-test-scripts/, in a Linux machine with ocswish installed.
+\li Start the sequence command example in <tt> giapi-glue-cc/src/examples/ </tt> with: <tt>$ sh runExample.sh observe-simulator</tt>.
+\li In ocs-test-scripts, run <tt>$ ./observeTest.itcl<tt>. Remember to set the
+\c EPICS_CA_ADDR_LIST environment variable to point to the IP where the GMP is running.
+\li The command should take a few seconds before exiting without any exceptions (a message like "epicsThreadOnceOsd
+epicsMutexLock failed." is normal).
+\li In the C++ example code that's running you should see something like:
+\verbatim
+    $ sh runExample.sh observe-simulator
+    Starting Accepting Any Sequence Commands Example
+    2011-05-19 15:28:19,790 [0x2aedd06f15d0] INFO  giapi.LogCommandUtil - Registering handler to sequence command GMP.SC.OBSERVE
+    Response to caller 0
+    Starting worker thread for 4
+    Worker Thread started!
+    Sending observation events...
+    2011-05-19 15:28:27,687 [0x45b72940] INFO  giapi.JmsProducer - Observation Event: OBS_PREP datalabel: S20110427-01
+    2011-05-19 15:28:28,688 [0x45b72940] INFO  giapi.JmsProducer - Observation Event: OBS_START_ACQ datalabel: S20110427-01
+    2011-05-19 15:28:29,690 [0x45b72940] INFO  giapi.JmsProducer - Observation Event: OBS_END_ACQ datalabel: S20110427-01
+    2011-05-19 15:28:30,994 [0x45b72940] INFO  giapi.JmsProducer - Observation Event: OBS_END_DSET_WRITE datalabel: S20110427-01
+    Sending completion info...
+    2011-05-19 15:28:31,996 [0x45b72940] INFO  giapi.LogCommandUtil - Posting completion info for action id  4
+    Processing done
+\endverbatim
+\li Check that FITS file has been updated. (TODO: specify how/where to check it)
+
+*/

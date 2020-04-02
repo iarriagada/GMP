@@ -1,0 +1,17 @@
+/*!
+  \page gmp_health GMP Health
+
+  This bundle provides a health of GMP. Health is decided based on whether all bundles are active.
+
+  \section gmp_health_provides_sec Provided Services
+  The \ref edu.gemini.aspen.gmp.health.Health "Health" class does not provide any services.
+
+  \section gmp_health_requires_sec Required Services
+  This bundle requires the services \ref edu.gemini.aspen.gmp.top.Top "Top" service, and the
+  \ref edu.gemini.aspen.giapi.util.jms.status.IStatusSetter "StatusSetter" service
+
+  \section gmp_health_configuration_sec Configuration
+  This bundle can be configured to set the health status name. See
+  \ref edu.gemini.aspen.gmp.health.Health-default.cfg
+
+ */

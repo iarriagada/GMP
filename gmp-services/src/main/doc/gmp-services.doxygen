@@ -1,0 +1,30 @@
+/*!
+  \page gmp-services GMP Services
+ 
+  This bundles contains some general services for GIAPI clients over JMS
+ 
+  \section gmp-services_provides_sec Provided Services
+  This bundle provides a \ref edu.gemini.aspen.gmp.services.PropertyHolder "PropertyHolder"  services
+  that can be used by OSGI components to get the values of GMP Services
+
+  It also provides a \ref edu.gemini.aspen.gmp.services.properties.PropertyService "PropertyService" that can answer queries for
+  generic properties done over JMS
+ 
+  \section gmp-services_requires_sec Required Services
+  This bundle requires the service \ref edu.gemini.jms.api.JmsProvider "JmsProvider" OSGI service,
+  provided by, for example, the \ref jms_activemq_provider bundle.
+ 
+  \section gmp-services_configuration_sec Configuration
+  This bundle has its main configuration file in \ref edu.gemini.aspen.gmp.services.properties.SimplePropertyHolder-default.cfg
+ 
+  There, you can set each of the service properties (with sample values):
+ 
+  GMP_HOST_NAME = localhost
+  DHS_ANCILLARY_DATA_PATH = /tmp
+  DHS_SCIENCE_DATA_PATH = /tmp
+  DHS_PERMANENT_SCIENCE_DATA_PATH = /tmp/perm
+  DHS_INTERMEDIATE_DATA_PATH = /tmp
+  DEFAULT =
+  APPEND_FITS_EXTENSION = true
+
+ */

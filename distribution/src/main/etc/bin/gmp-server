@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# init.d script to manage a container based on an OSGi framework
+#
+set -e # stop on errors
+#
+#              <startlevels> <startprio> <stopprio>
+# chkconfig:   345 75 15
+# description: The gmp-server application
+#
+# NOTE: the 2 comments above and the following 4 variable values will probably
+#       need customization when packaging the distribution. The generated values
+#       are meant for local testing
+#
+STARTER=/gemsoft/opt/gpi/gmp-server/bin/gmp-server-ctl.sh
+if ! [ -x $STARTER ]; then
+    echo "Cannot execute, missing $STARTER"
+    exit -1
+fi
+
+ARGS=$@
+
+# Run status as no user
+function gmpStatus() {
+    $STARTER status
+}
+
+# Run any other as software
+function gmpCall() {
+    /bin/su - software $STARTER $ARGS
+}
+#
+# - main command dispatch ...
+#
+case "$1" in
+    status)
+        gmpStatus
+        ;;
+    *)
+        gmpCall
+        ;;
+esac

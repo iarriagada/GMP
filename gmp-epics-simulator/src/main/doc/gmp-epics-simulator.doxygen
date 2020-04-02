@@ -1,0 +1,24 @@
+/*!
+ * \page gmp-epics-simulator GMP EPICS Simulator
+ *
+ * This bundles is capable of generating simulated EPICS values at a fixed rate. The simulated
+ * values are random and can be of different types as expressed in the configuration
+ *
+ * \section gmp-epics-simulator_provides_sec Provided Services
+ * This bundle doesn't provide any services
+ *
+ * \section gmp-epics-simulator_requires_sec Required Services
+ * This bundle requires the \ref edu.gemini.aspen.gmp.epics.EpicsRegistrar "EpicsRegistrar" OSGi service,
+ * provided by, for example, the \ref gmp-epics-access bundle.
+ *
+ * \section gmp-epics-simulator_configuration_sec Configuration
+ * This bundle has its main configuration file in \ref edu.gemini.aspen.gmp.epics.simulator.EpicsSimulatorComponent-default.cfg
+ *
+ * There, you can set only one properties:
+ *
+ * - simulationConfiguration: This property points to a XML file containing a definition of the simulated channels
+ *
+ * The XML file mentioned in the simulationConfiguration should list the simulated channels and their properties.
+ * As a reference you can see the example \ref simulated-epics-channels.xml.
+ \attention You should avoid simulating channels that are active EPICS channels. Your clients will become confused.
+ */

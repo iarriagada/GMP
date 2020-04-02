@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!--
+    This configuration file contains the description of EPICS channels
+    that will be simulated.
+
+    Currently the parser will fail if any part is missing
+
+    Each channel must have the following parameters:
+         name : The name of the EPICS channel that will be simulated
+         type : Data type of the epics channel. Valid data types are
+                STRING, DOUBLE, INT. Uppercase or lowercase
+                values are accepted
+         value: Value that describes the initial value of the channel.
+-->
+<channels>
+    <channel>
+        <name>gpi:E1</name>
+        <type>double</type>
+        <value>10</value>
+    </channel>
+    <channel>
+        <name>gpi:E2</name>
+        <type>int</type>
+        <value>20</value>
+    </channel>
+    <channel>
+        <name>gpi:E3</name>
+        <type>string</type>
+        <value>ABCD</value>
+    </channel>
+    <channel>
+        <name>gpi:E4</name>
+        <type>float</type>
+        <value>1.0</value>
+    </channel>
+    <channel>
+        <name>gpi:E5</name>
+        <type>byte</type>
+        <value>1</value>
+    </channel>
+</channels>

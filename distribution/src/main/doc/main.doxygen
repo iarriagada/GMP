@@ -1,0 +1,32 @@
+/*! \mainpage GIAPI/GMP Documentation
+ *
+ * \section intro_sec Introduction
+ *
+ * The Gemini Master Process (GMP) is a Gemini-provided component that provides
+ * the bulk of the Gemini features and integration functionality for instruments
+ * that use the GIAPI to interface with Gemini.
+ *
+ * The GMP encapsulates and handles the details of all communication with
+ * current Gemini software. The GMP interfaces with the instrument via one or more implementations of the
+ * language-specific API or GIAPI glue.
+ * This way, the instrument is only concerned with the
+ * details of the GIAPI as documented in the language-specific glue API ICDs.
+ *
+ * A simple instrument that shows the relationship between builder code, the
+ * Gemini Master Process and the language-specific API glue is shown below.
+ *
+ * \image html gmp_context.png
+ *
+ * Complete details about the GMP can be found in the GIAPI Design and Use
+ * document.
+ *
+ * - \subpage gmp_user_manual
+ * - \subpage gds_user_manual
+ * - \subpage release_notes
+ * - \subpage known_issues_and_bugs
+ * - \subpage gmp_internal_documentation
+ * - \subpage gds_internal_documentation
+ * - \subpage gpi_validation
+ * - <a href="../scaladocs/index.html">GDS Scala API</a>
+ *
+ */

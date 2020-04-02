@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<Channels xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="gmp-epics-to-status-mapping.xsd">
+    <SimpleChannel>
+        <statusitem>giapitest:statusitemint</statusitem>
+        <epicschannel>giapitest:epicschannelint</epicschannel>
+        <index>0</index>
+    </SimpleChannel>
+    <AlarmChannel>
+        <statusitem>giapitest:giapialarmfloat</statusitem>
+        <epicschannel>giapitest:epicsalarmfloat</epicschannel>
+    </AlarmChannel>
+    <HealthChannel>
+        <statusitem>giapitest:giapihealth1</statusitem>
+        <epicschannel>giapitest:epicshealth1</epicschannel>
+    </HealthChannel>
+
+</Channels>
